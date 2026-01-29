@@ -6,3 +6,4 @@ Flask-Mail
 Flask-WTF
 Flask-Limiter
 python-dotenv
+gunicorn
