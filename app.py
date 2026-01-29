@@ -68,6 +68,16 @@ app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
+# DEBUG: Verificar configuración de correo
+print("[DEBUG] === Mail Configuration ===")
+print(f"[DEBUG] MAIL_SERVER = {app.config['MAIL_SERVER']}")
+print(f"[DEBUG] MAIL_PORT = {app.config['MAIL_PORT']}")
+print(f"[DEBUG] MAIL_USE_TLS = {app.config['MAIL_USE_TLS']}")
+print(f"[DEBUG] MAIL_USERNAME = {app.config['MAIL_USERNAME']}")
+print(f"[DEBUG] MAIL_PASSWORD = {'SET' if app.config['MAIL_PASSWORD'] else 'NOT SET'}")
+print(f"[DEBUG] MAIL_DEFAULT_SENDER = {app.config['MAIL_DEFAULT_SENDER']}")
+print("[DEBUG] ================================")
+
 db = SQLAlchemy(app)
 mail = Mail(app)
 csrf = CSRFProtect(app)  # Protección CSRF
