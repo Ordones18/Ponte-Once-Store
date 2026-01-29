@@ -33,6 +33,11 @@ if mysql_url:
     db_uri = mysql_url
     if db_uri.startswith('mysql://'):
         db_uri = db_uri.replace('mysql://', 'mysql+pymysql://', 1)
+    # Agregar charset para compatibilidad con MySQL 8
+    if '?' not in db_uri:
+        db_uri += '?charset=utf8mb4'
+    else:
+        db_uri += '&charset=utf8mb4'
     print(f"[INFO] Using MySQL URL from environment")
 else:
     # Local: construir desde variables individuales
