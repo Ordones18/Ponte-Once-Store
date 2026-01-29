@@ -18,29 +18,34 @@ load_dotenv(override=False)
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DESDE VARIABLES DE ENTORNO ---
-# Intentar obtener DATABASE_URL primero, si no, construirla desde variables individuales de Railway
+# Prioridad: MYSQL_URL > DATABASE_URL > Variables individuales > localhost
+mysql_url = os.environ.get('MYSQL_URL')
 database_url = os.environ.get('DATABASE_URL')
 
-# Si no hay DATABASE_URL o contiene localhost, construir desde variables individuales de Railway
-if not database_url or 'localhost' in database_url:
-    mysql_host = os.environ.get('MYSQLHOST')
-    mysql_user = os.environ.get('MYSQLUSER', 'root')
-    mysql_password = os.environ.get('MYSQLPASSWORD', '')
-    mysql_port = os.environ.get('MYSQLPORT', '3306')
-    mysql_database = os.environ.get('MYSQLDATABASE', 'railway')
-    
-    if mysql_host:
-        database_url = f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
-        print(f"[INFO] Built DATABASE_URL from Railway MySQL variables: host={mysql_host}")
-    else:
-        # Fallback para desarrollo local
-        database_url = 'mysql+pymysql://root:@localhost/gamer_store'
-        print("[INFO] Using local development database")
-else:
-    # Railway usa 'mysql://' pero SQLAlchemy necesita 'mysql+pymysql://'
+if mysql_url:
+    # Railway proporciona MYSQL_URL directamente
+    database_url = mysql_url.replace('mysql://', 'mysql+pymysql://', 1) if mysql_url.startswith('mysql://') else mysql_url
+    print(f"[INFO] Using MYSQL_URL from Railway")
+elif database_url and 'localhost' not in database_url:
+    # Usar DATABASE_URL si está configurada correctamente
     if database_url.startswith('mysql://'):
         database_url = database_url.replace('mysql://', 'mysql+pymysql://', 1)
     print(f"[INFO] Using DATABASE_URL from environment")
+else:
+    # Construir desde variables individuales (DB_HOST o MYSQLHOST)
+    db_host = os.environ.get('DB_HOST') or os.environ.get('MYSQLHOST')
+    db_user = os.environ.get('DB_USER') or os.environ.get('MYSQLUSER', 'root')
+    db_password = os.environ.get('DB_PASSWORD') or os.environ.get('MYSQLPASSWORD', '')
+    db_port = os.environ.get('DB_PORT') or os.environ.get('MYSQLPORT', '3306')
+    db_name = os.environ.get('DB_NAME') or os.environ.get('MYSQLDATABASE', 'railway')
+    
+    if db_host:
+        database_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+        print(f"[INFO] Built DATABASE_URL from individual variables: host={db_host}")
+    else:
+        # Fallback para desarrollo local
+        database_url = 'mysql+pymysql://root:@localhost/gamer_store'
+        print("[INFO] Using local development database (localhost)")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -325,11 +330,27 @@ def add_product():
     return render_template('admin/add_product.html')
 
 # --- INIT ---
-# Crear tablas al cargar la aplicación (funciona con gunicorn)
-with app.app_context():
-    db.create_all()
-    seed_database()
+# Variable para controlar si ya se inicializó la BD
+_db_initialized = False
+
+@app.before_request
+def initialize_database():
+    """Inicializa la base de datos en la primera petición (lazy initialization)"""
+    global _db_initialized
+    if not _db_initialized:
+        try:
+            db.create_all()
+            seed_database()
+            _db_initialized = True
+            print("[INFO] Database initialized successfully")
+        except Exception as e:
+            print(f"[ERROR] Database initialization failed: {e}")
+            _db_initialized = True  # Evita reintentos infinitos
 
 if __name__ == '__main__':
+    # Solo en desarrollo local
+    with app.app_context():
+        db.create_all()
+        seed_database()
     app.run(debug=True)
 
