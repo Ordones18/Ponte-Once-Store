@@ -36,3 +36,4 @@ migrate_*.py
 check_*.py
 list_*.py
 promote_*.py
+.md
