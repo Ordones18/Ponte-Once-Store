@@ -11,16 +11,20 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
-# Cargar variables de entorno desde .env
-load_dotenv()
+# Cargar variables de entorno desde .env (Solo en desarrollo local)
+# override=False significa que NO reemplaza variables ya existentes del sistema
+load_dotenv(override=False)
 
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DESDE VARIABLES DE ENTORNO ---
 database_url = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/gamer_store')
+print(f"[DEBUG] DATABASE_URL original: {database_url[:50]}...")  # Debug log
+
 # Railway usa 'mysql://' pero SQLAlchemy necesita 'mysql+pymysql://'
 if database_url.startswith('mysql://'):
     database_url = database_url.replace('mysql://', 'mysql+pymysql://', 1)
+print(f"[DEBUG] DATABASE_URL final: {database_url[:50]}...")  # Debug log
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
