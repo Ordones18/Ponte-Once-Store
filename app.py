@@ -300,8 +300,11 @@ def add_product():
     return render_template('admin/add_product.html')
 
 # --- INIT ---
+# Crear tablas al cargar la aplicación (funciona con gunicorn)
+with app.app_context():
+    db.create_all()
+    seed_database()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        seed_database()
     app.run(debug=True)
+
