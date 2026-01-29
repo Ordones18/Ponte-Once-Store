@@ -1,0 +1,38 @@
+# Archivos de entorno (NUNCA subir)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Virtual Environment
+venv/
+.venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Base de datos local
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Archivos temporales de migración
+migrate_*.py
+check_*.py
+list_*.py
+promote_*.py

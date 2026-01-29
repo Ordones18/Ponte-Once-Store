@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Registro{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Crear Cuenta</h2>
+        {% with messages = get_flashed_messages(category_filter=["error"]) %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-error">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('register') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Nombre de Usuario</label>
+                <input type="text" name="username" required placeholder="Tu nombre gamer">
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" name="email" required placeholder="correo@ejemplo.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" name="password" required placeholder="********">
+            </div>
+            <button type="submit" class="btn btn-block">Registrarse</button>
+        </form>
+        <div class="auth-links">
+            <a href="{{ url_for('login') }}">¿Ya tienes cuenta? Inicia Sesión</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/password_protection.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 5%;
+    }
+
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--primary-blue);
+        border-bottom: 2px solid var(--accent-yellow);
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 3rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .admin-table th {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .badge-stock {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    .stock-ok {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .stock-low {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .stock-out {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Panel de Administración</h1>
+        <a href="{{ url_for('add_product') }}" class="btn">➕ Nuevo Producto</a>
+    </div>
+
+    <h2 class="section-title">Últimos Pedidos</h2>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Contacto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in purchases %}
+            <tr>
+                <td>#{{ p.id }}</td>
+                <td>
+                    <b>{{ p.buyer_name }}</b><br>
+                    <small>{{ p.cedula }}</small><br>
+                    <small>{{ p.email }}</small>
+                </td>
+                <td>{{ p.product.name if p.product else 'Producto ' ~ p.product_id }}</td>
+                <td>${{ p.total_price }}</td>
+                <td>{{ p.date.strftime('%d/%m %H:%M') }}</td>
+                <td>{{ p.phone or 'N/A' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align:center;">No hay pedidos aún.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="section-title">Inventario de Productos</h2>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prod in products %}
+            <tr>
+                <td>{{ prod.id }}</td>
+                <td>{{ prod.name }}</td>
+                <td>${{ prod.price }}</td>
+                <td>
+                    {% if prod.stock == 0 %}
+                    <span class="badge-stock stock-out">Agotado</span>
+                    {% elif prod.stock < 5 %} <span class="badge-stock stock-low">{{ prod.stock }} (Bajo)</span>
+                        {% else %}
+                        <span class="badge-stock stock-ok">{{ prod.stock }}</span>
+                        {% endif %}
+                </td>
+                <td>
+                    <!-- Podríamos agregar botón editar aquí después -->
+                    <a href="{{ url_for('product_detail', product_id=prod.id) }}" target="_blank">Ver</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

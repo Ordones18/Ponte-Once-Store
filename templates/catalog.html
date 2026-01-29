@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/catalog.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="catalog-header">
+    <h1>Catálogo de <span class="highlight">Hardware</span></h1>
+    <p>Componentes de alto rendimiento seleccionados para ti.</p>
+</section>
+
+<section class="catalog-grid">
+    {% for product in products %}
+    <div class="product-card">
+        <div class="product-image">
+            {% set images = product.image_url.split(',') if product.image_url else ['/static/img/placeholder.jpg'] %}
+            <div class="category-tag">{{ product.category }}</div>
+            <img src="{{ images[0].strip() }}" alt="{{ product.name }}" class="img-main">
+            {% if images|length > 1 %}
+            <img src="{{ images[1].strip() }}" alt="{{ product.name }}" class="img-hover">
+            {% endif %}
+        </div>
+        <div class="product-details">
+            <h2>{{ product.name }}</h2>
+            <p class="description">{{ product.description }}</p>
+            <div class="product-footer">
+                <span class="price">${{ product.price }}</span>
+                <div class="card-actions">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-detail">Detalles</a>
+                    <a href="{{ url_for('checkout', product_id=product.id) }}" class="btn">Comprar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/catalog.js') }}"></script>
+{% endblock %}

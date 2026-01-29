@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Detalles{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/details.css') }}">
+<!-- Reusing checkbox gallery styles if needed or importing specific ones -->
+{% endblock %}
+
+{% block content %}
+<div class="details-container">
+    <div class="details-card">
+        <!-- Columna Izquierda: Galería -->
+        <div class="product-gallery">
+            {% set images = product.image_url.split(',') if product.image_url else ['/static/img/placeholder.jpg'] %}
+
+            <div class="main-image-frame">
+                <img id="mainImage" src="{{ images[0].strip() }}" alt="{{ product.name }}">
+            </div>
+
+            {% if images|length > 1 %}
+            <div class="thumbnails-row">
+                {% for img in images %}
+                <img src="{{ img.strip() }}" alt="Vista {{ loop.index }}"
+                    class="thumbnail {% if loop.first %}active{% endif %}" onclick="changeImage(this.src, this)">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Columna Derecha: Información -->
+        <div class="product-info">
+            <span class="category-badge">{{ product.category }}</span>
+            <h1>{{ product.name }}</h1>
+            <p class="price">${{ product.price }}</p>
+
+            <div class="description-box">
+                <h3>Descripción</h3>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{{ url_for('checkout', product_id=product.id) }}" class="btn btn-buy">Comprar Ahora</a>
+                <a href="{{ url_for('catalog') }}" class="btn btn-outline">Volver al Catálogo</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function changeImage(src, element) {
+        document.getElementById('mainImage').src = src;
+        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+        element.classList.add('active');
+    }
+</script>
+{% endblock %}

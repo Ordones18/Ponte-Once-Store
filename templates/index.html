@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}?v=3">
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Potencia Tu <span class="highlight">Juego</span></h1>
+        <p>El hardware más avanzado para los gamers más exigentes.</p>
+        <a href="/catalog" class="btn btn-hero">Ver Catálogo</a>
+    </div>
+</section>
+
+<section class="about-store">
+    <div class="about-container">
+        <div class="about-text">
+            <h2>Nuestra <span class="highlight">Tienda</span></h2>
+            <h3>¿Por qué elegirnos?</h3>
+            <p>
+                En PONTE ONCE STORE nos destacamos por ofrecer una experiencia inmersiva.
+                No solo compras una caja, te llevas asesoría de expertos que juegan como tú.
+            </p>
+            <p>
+                Garantía directa, soporte técnico especializado y las mejores marcas
+                del mundo gaming al alcance de tu mano.
+            </p>
+        </div>
+        <div class="about-video">
+            <!-- Video en recuadro pequeño a la derecha -->
+            <video autoplay muted loop playsinline>
+                <source src="{{ url_for('static', filename='img/tiendavid.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+</section>
+
+<section class="featured">
+    <h2>Destacados</h2>
+    <div class="featured-grid">
+        {% for product in featured %}
+        <div class="card">
+            <div class="card-image">
+                {% set images = product.image_url.split(',') if product.image_url else ['/static/img/placeholder.jpg']
+                %}
+                <img src="{{ images[0].strip() }}" alt="{{ product.name }}">
+            </div>
+            <div class="card-info">
+                <h3>{{ product.name }}</h3>
+                <p class="price">${{ product.price }}</p>
+                <a href="/checkout/{{ product.id }}" class="btn">Comprar</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

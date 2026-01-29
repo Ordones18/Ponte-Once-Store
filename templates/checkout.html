@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - {{ product.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="product-summary">
+        <h2>Resumen de Compra</h2>
+        <div class="summary-card">
+            <div class="product-image-container">
+                {% set images = product.image_url.split(',') if product.image_url else ['/static/img/placeholder.jpg']
+                %}
+                <!-- Imagen Principal Grande -->
+                <img id="mainImage" src="{{ images[0].strip() }}" alt="{{ product.name }}" class="checkout-main-img">
+
+                <!-- Miniaturas (Galería) -->
+                {% if images|length > 1 %}
+                <div class="thumbnail-gallery">
+                    {% for img in images %}
+                    <img src="{{ img.strip() }}" alt="Vista {{ loop.index }}"
+                        class="thumbnail {% if loop.first %}active{% endif %}" onclick="changeImage(this.src, this)">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="summary-details">
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.description }}</p>
+                <div class="total-price">Total: ${{ product.price }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkout-form-section">
+        <h2>Datos de Facturación</h2>
+        <form id="paymentForm">
+            <!-- Hidden inputs for product data -->
+            <input type="hidden" id="productId" value="{{ product.id }}">
+            <input type="hidden" id="productPrice" value="{{ product.price }}">
+
+            <div class="form-group">
+                <label for="name">Nombre Completo</label>
+                <input type="text" id="name" required placeholder="Ej. Juan Perez">
+            </div>
+
+            <div class="form-group">
+                <label for="cedula">Cédula de Identidad</label>
+                <input type="text" id="cedula" required placeholder="Ej. 1710034065" maxlength="10">
+                <span id="cedulaError" class="error-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" required value="{{ current_user.email }}">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Número de Celular</label>
+                <input type="text" id="phone" required placeholder="Ej. 0991234567">
+            </div>
+
+            <div class="form-group">
+                <label>Método de Pago</label>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="card" checked onclick="togglePayment('card')">
+                        <span class="option-box">💳 Tarjeta de Crédito</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="transfer" onclick="togglePayment('transfer')">
+                        <span class="option-box">🏦 Transferencia</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sección Tarjeta (Ocultable) -->
+            <div id="cardDetails" class="card-details-section">
+                <div class="form-group">
+                    <label for="cardNumber">Número de Tarjeta (Simulación)</label>
+                    <input type="text" id="cardNumber" placeholder="4xxx xxxx xxxx xxxx" maxlength="19">
+                    <small id="cardError" class="error-message"></small>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Expiración</label>
+                        <input type="text" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>CVV</label>
+                        <input type="text" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-block" id="payButton">Pagar Ahora</button>
+        </form>
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+{% endblock %}

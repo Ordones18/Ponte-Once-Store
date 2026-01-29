@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 3rem auto;
+        padding: 0 5%;
+    }
+
+    .profile-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-blue);
+        color: var(--accent-yellow);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .history-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .history-table th {
+        color: var(--primary-blue);
+        font-weight: 700;
+    }
+
+    .history-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .empty-history {
+        text-align: center;
+        color: #666;
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ current_user.username[0] | upper }}
+        </div>
+        <div>
+            <h1>Hola, {{ current_user.username }}</h1>
+            <p>{{ current_user.email }}</p>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <h2>Historial de Compras</h2>
+        {% if purchases %}
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>ID Pedido</th>
+                    <th>Producto</th>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for purchase in purchases %}
+                <tr>
+                    <td>#{{ purchase.id }}</td>
+                 
+                    <td>
+                        {% if purchase.product %}
+                        {{ purchase.product.name }}
+                        {% else %}
+                        Producto ID: {{ purchase.product_id }}
+                        {% endif %}
+                    </td>
+                    <td>{{ purchase.date.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>${{ purchase.total_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-history">
+            <p>Aún no has realizado ninguna compra.</p>
+            <a href="{{ url_for('catalog') }}" class="btn" style="margin-top:1rem;">Ir al Catálogo</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

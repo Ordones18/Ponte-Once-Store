@@ -1,0 +1,154 @@
+.checkout-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 5%;
+}
+
+.product-summary {
+    flex: 1;
+    min-width: 300px;
+}
+
+.summary-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.summary-card img {
+    border-radius: 8px;
+}
+
+.checkout-main-img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 1rem;
+    transition: opacity 0.3s;
+}
+
+.thumbnail-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.7;
+}
+
+.thumbnail:hover {
+    opacity: 1;
+}
+
+.thumbnail.active {
+    border-color: var(--primary-blue);
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.total-price {
+    font-size: 1.8rem;
+    color: var(--primary-blue);
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.checkout-form-section {
+    flex: 1.5;
+    min-width: 350px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.payment-options {
+    display: flex;
+    gap: 1rem;
+}
+
+.payment-option {
+    flex: 1;
+    cursor: pointer;
+}
+
+.payment-option input {
+    display: none;
+}
+
+.option-box {
+    display: block;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.payment-option input:checked+.option-box {
+    border-color: var(--primary-blue);
+    background: #eef4fb;
+    color: var(--primary-blue);
+}
+
+.btn-block {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+}
+
+.error-message {
+    color: #ff4444;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.status-message {
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: 700;
+}
