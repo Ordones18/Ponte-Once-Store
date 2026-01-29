@@ -340,7 +340,8 @@ def init_db():
         seed_database()
         print("[INFO] Database initialized successfully")
 
-if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
+# Inicializar la base de datos al arrancar (producción y local)
+init_db()
 
+if __name__ == '__main__':
+    app.run(debug=True)
