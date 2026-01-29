@@ -1,6 +1,7 @@
 Flask
 Flask-SQLAlchemy
 pymysql
+cryptography
 Flask-Login
 Flask-Mail
 Flask-WTF
