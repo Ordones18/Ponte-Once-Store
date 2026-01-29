@@ -18,6 +18,14 @@ load_dotenv(override=False)
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DE BASE DE DATOS ---
+# DEBUG: Imprimir todas las variables relacionadas con MySQL
+print("[DEBUG] === Environment Variables ===")
+print(f"[DEBUG] MYSQL_URL = {os.environ.get('MYSQL_URL', 'NOT SET')}")
+print(f"[DEBUG] DATABASE_URL = {os.environ.get('DATABASE_URL', 'NOT SET')}")
+print(f"[DEBUG] MYSQLHOST = {os.environ.get('MYSQLHOST', 'NOT SET')}")
+print(f"[DEBUG] DB_HOST = {os.environ.get('DB_HOST', 'NOT SET')}")
+print("[DEBUG] ================================")
+
 mysql_url = os.environ.get("MYSQL_URL") or os.environ.get("DATABASE_URL")
 
 if mysql_url:
