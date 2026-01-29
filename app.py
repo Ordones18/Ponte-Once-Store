@@ -17,7 +17,12 @@ load_dotenv()
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DESDE VARIABLES DE ENTORNO ---
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/gamer_store')
+database_url = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/gamer_store')
+# Railway usa 'mysql://' pero SQLAlchemy necesita 'mysql+pymysql://'
+if database_url.startswith('mysql://'):
+    database_url = database_url.replace('mysql://', 'mysql+pymysql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ.get('SECRET_KEY', 'dev_key_change_in_production')
 
