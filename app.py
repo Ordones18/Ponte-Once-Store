@@ -18,13 +18,29 @@ load_dotenv(override=False)
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DESDE VARIABLES DE ENTORNO ---
-database_url = os.environ.get('DATABASE_URL', 'mysql+pymysql://root:@localhost/gamer_store')
-print(f"[DEBUG] DATABASE_URL original: {database_url[:50]}...")  # Debug log
+# Intentar obtener DATABASE_URL primero, si no, construirla desde variables individuales de Railway
+database_url = os.environ.get('DATABASE_URL')
 
-# Railway usa 'mysql://' pero SQLAlchemy necesita 'mysql+pymysql://'
-if database_url.startswith('mysql://'):
-    database_url = database_url.replace('mysql://', 'mysql+pymysql://', 1)
-print(f"[DEBUG] DATABASE_URL final: {database_url[:50]}...")  # Debug log
+# Si no hay DATABASE_URL o contiene localhost, construir desde variables individuales de Railway
+if not database_url or 'localhost' in database_url:
+    mysql_host = os.environ.get('MYSQLHOST')
+    mysql_user = os.environ.get('MYSQLUSER', 'root')
+    mysql_password = os.environ.get('MYSQLPASSWORD', '')
+    mysql_port = os.environ.get('MYSQLPORT', '3306')
+    mysql_database = os.environ.get('MYSQLDATABASE', 'railway')
+    
+    if mysql_host:
+        database_url = f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}"
+        print(f"[INFO] Built DATABASE_URL from Railway MySQL variables: host={mysql_host}")
+    else:
+        # Fallback para desarrollo local
+        database_url = 'mysql+pymysql://root:@localhost/gamer_store'
+        print("[INFO] Using local development database")
+else:
+    # Railway usa 'mysql://' pero SQLAlchemy necesita 'mysql+pymysql://'
+    if database_url.startswith('mysql://'):
+        database_url = database_url.replace('mysql://', 'mysql+pymysql://', 1)
+    print(f"[INFO] Using DATABASE_URL from environment")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
