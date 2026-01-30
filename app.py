@@ -336,10 +336,24 @@ def add_product():
 # --- INIT ---
 def init_db():
     """Inicializa la base de datos"""
-    with app.app_context():
-        db.create_all()
-        seed_database()
-        print("[INFO] Database initialized successfully")
+    try:
+        with app.app_context():
+            print("[DEBUG] Starting db.create_all()...")
+            db.create_all()
+            print("[DEBUG] db.create_all() completed!")
+            
+            # Verificar que las tablas existen
+            from sqlalchemy import inspect
+            inspector = inspect(db.engine)
+            tables = inspector.get_table_names()
+            print(f"[DEBUG] Tables in database: {tables}")
+            
+            seed_database()
+            print("[INFO] Database initialized successfully")
+    except Exception as e:
+        print(f"[ERROR] Database initialization failed: {e}")
+        import traceback
+        traceback.print_exc()
 
 # Inicializar la base de datos al arrancar (producción y local)
 init_db()
