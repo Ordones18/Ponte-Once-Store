@@ -4,9 +4,10 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .admin-container {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 2rem auto;
         padding: 0 5%;
     }
@@ -16,6 +17,107 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    }
+
+    .stat-card.blue {
+        background: linear-gradient(135deg, #0066ff 0%, #0044aa 100%);
+    }
+
+    .stat-card.green {
+        background: linear-gradient(135deg, #00c853 0%, #009624 100%);
+    }
+
+    .stat-card.orange {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    }
+
+    .stat-card.purple {
+        background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+    }
+
+    .stat-card.pink {
+        background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    }
+
+    .stat-card.cyan {
+        background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    /* Charts Section */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 900px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-card h3 {
+        margin-bottom: 1rem;
+        color: #1a1a2e;
+        font-size: 1.1rem;
     }
 
     .section-title {
@@ -32,7 +134,7 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         border-radius: 8px;
         overflow: hidden;
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
     }
 
     .admin-table th,
@@ -68,17 +170,92 @@
         background: #f8d7da;
         color: #721c24;
     }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.3s;
+    }
+
+    .btn-delete:hover {
+        background: #c82333;
+    }
+
+    .action-btns {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btns a {
+        padding: 6px 12px;
+        background: var(--primary-blue);
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="admin-container">
     <div class="admin-header">
-        <h1>Panel de Administración</h1>
+        <h1>🎮 Panel de Administración</h1>
         <a href="{{ url_for('add_product') }}" class="btn">➕ Nuevo Producto</a>
     </div>
 
-    <h2 class="section-title">Últimos Pedidos</h2>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">${{ "%.2f"|format(stats.total_ventas) }}</div>
+            <div class="stat-label">Ventas Totales</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon">📦</div>
+            <div class="stat-value">{{ stats.total_pedidos }}</div>
+            <div class="stat-label">Pedidos Totales</div>
+        </div>
+        <div class="stat-card orange">
+            <div class="stat-icon">🛒</div>
+            <div class="stat-value">{{ stats.total_productos }}</div>
+            <div class="stat-label">Productos</div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">{{ stats.total_usuarios }}</div>
+            <div class="stat-label">Usuarios</div>
+        </div>
+        <div class="stat-card pink">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value">${{ "%.2f"|format(stats.ventas_hoy) }}</div>
+            <div class="stat-label">Ventas Hoy</div>
+        </div>
+        <div class="stat-card cyan">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value">{{ stats.pedidos_hoy }}</div>
+            <div class="stat-label">Pedidos Hoy</div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>📊 Ventas Últimos 7 Días</h3>
+            <canvas id="salesChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>🏆 Productos Más Vendidos</h3>
+            <canvas id="topProductsChart"></canvas>
+        </div>
+    </div>
+
+    <h2 class="section-title">📋 Últimos Pedidos</h2>
     <table class="admin-table">
         <thead>
             <tr>
@@ -112,7 +289,7 @@
         </tbody>
     </table>
 
-    <h2 class="section-title">Inventario de Productos</h2>
+    <h2 class="section-title">📦 Inventario de Productos</h2>
     <table class="admin-table">
         <thead>
             <tr>
@@ -138,12 +315,72 @@
                         {% endif %}
                 </td>
                 <td>
-                    <!-- Podríamos agregar botón editar aquí después -->
-                    <a href="{{ url_for('product_detail', product_id=prod.id) }}" target="_blank">Ver</a>
+                    <div class="action-btns">
+                        <a href="{{ url_for('product_detail', product_id=prod.id) }}" target="_blank">Ver</a>
+                        <form action="{{ url_for('delete_product', product_id=prod.id) }}" method="POST"
+                            style="display:inline;" onsubmit="return confirm('¿Eliminar {{ prod.name }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-delete">🗑️ Eliminar</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+    // Ventas Últimos 7 Días
+    const salesData = {{ stats.ventas_por_dia | tojson }};
+    new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+            labels: salesData.map(d => d.fecha),
+            datasets: [{
+                label: 'Ventas ($)',
+                data: salesData.map(d => d.total),
+                borderColor: '#0066ff',
+                backgroundColor: 'rgba(0, 102, 255, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#0066ff',
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Productos Más Vendidos
+    const topProducts = {{ stats.productos_vendidos | tojson }};
+    if (topProducts.length > 0) {
+        new Chart(document.getElementById('topProductsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: topProducts.map(p => p.nombre),
+                datasets: [{
+                    data: topProducts.map(p => p.cantidad),
+                    backgroundColor: ['#0066ff', '#00c853', '#ff9800', '#9c27b0', '#e91e63']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    } else {
+        document.getElementById('topProductsChart').parentElement.innerHTML += '<p style="text-align:center;color:#666;">Sin datos de ventas aún</p>';
+    }
+</script>
 {% endblock %}

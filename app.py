@@ -304,10 +304,67 @@ def admin_required(f):
 @login_required
 @admin_required
 def admin_dashboard():
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    
     # Obtener todas las compras y todos los productos
-    purchases = Purchase.query.order_by(Purchase.date.desc()).all()
+    purchases = Purchase.query.order_by(Purchase.date.desc()).limit(10).all()
     products = Product.query.all()
-    return render_template('admin/dashboard.html', purchases=purchases, products=products)
+    
+    # --- ESTADÍSTICAS DEL DASHBOARD ---
+    # Total de ventas
+    total_ventas = db.session.query(func.sum(Purchase.total_price)).scalar() or 0
+    
+    # Número de pedidos
+    total_pedidos = Purchase.query.count()
+    
+    # Número de productos
+    total_productos = Product.query.count()
+    
+    # Número de usuarios
+    total_usuarios = User.query.count()
+    
+    # Ventas hoy
+    today = datetime.utcnow().date()
+    ventas_hoy = db.session.query(func.sum(Purchase.total_price)).filter(
+        func.date(Purchase.date) == today
+    ).scalar() or 0
+    
+    # Pedidos hoy
+    pedidos_hoy = Purchase.query.filter(
+        func.date(Purchase.date) == today
+    ).count()
+    
+    # Ventas por día (últimos 7 días)
+    ventas_por_dia = []
+    for i in range(6, -1, -1):
+        day = datetime.utcnow().date() - timedelta(days=i)
+        day_total = db.session.query(func.sum(Purchase.total_price)).filter(
+            func.date(Purchase.date) == day
+        ).scalar() or 0
+        ventas_por_dia.append({
+            'fecha': day.strftime('%d/%m'),
+            'total': float(day_total)
+        })
+    
+    # Productos más vendidos
+    productos_vendidos = db.session.query(
+        Product.name,
+        func.count(Purchase.id).label('cantidad')
+    ).join(Purchase).group_by(Product.id).order_by(func.count(Purchase.id).desc()).limit(5).all()
+    
+    stats = {
+        'total_ventas': float(total_ventas),
+        'total_pedidos': total_pedidos,
+        'total_productos': total_productos,
+        'total_usuarios': total_usuarios,
+        'ventas_hoy': float(ventas_hoy),
+        'pedidos_hoy': pedidos_hoy,
+        'ventas_por_dia': ventas_por_dia,
+        'productos_vendidos': [{'nombre': p[0], 'cantidad': p[1]} for p in productos_vendidos]
+    }
+    
+    return render_template('admin/dashboard.html', purchases=purchases, products=products, stats=stats)
 
 @app.route('/admin/product/new', methods=['GET', 'POST'])
 @login_required
@@ -331,6 +388,17 @@ def add_product():
         return redirect(url_for('admin_dashboard'))
         
     return render_template('admin/add_product.html')
+
+@app.route('/admin/product/<int:product_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    product_name = product.name
+    db.session.delete(product)
+    db.session.commit()
+    flash(f'Producto "{product_name}" eliminado.', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 # --- INIT ---
 # --- INIT ---
