@@ -32,7 +32,7 @@ app.post('/send-email', async (c) => {
             service: 'gmail',
             auth: {
                 user: process.env.MAIL_USERNAME,
-                pass: process.env.MAIL_PASSWORD
+                pass: process.env.MAIL_PASSWORD.replace(/\s+/g, '') // Eliminar espacios por seguridad
             }
         })
 
