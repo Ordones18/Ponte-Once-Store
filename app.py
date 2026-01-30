@@ -10,6 +10,7 @@ from itsdangerous import URLSafeTimedSerializer
 from datetime import datetime
 from dotenv import load_dotenv
 import os
+import requests
 
 # Cargar variables de entorno desde .env (Solo en desarrollo local)
 # override=False significa que NO reemplaza variables ya existentes del sistema
@@ -60,13 +61,27 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['WTF_CSRF_ENABLED'] = True
 app.config['WTF_CSRF_TIME_LIMIT'] = 3600
 
-# --- CONFIGURACIÓN DE CORREO (FLASK-MAIL) ---
-app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
+# --- CONFIGURACIÓN DE CORREO (MICROSERVICIO) ---
+EMAIL_SERVICE_URL = os.environ.get('EMAIL_SERVICE_URL')
+
+def send_email_microservice(to_email, subject, html_content):
+    if not EMAIL_SERVICE_URL:
+        print("[WARNING] EMAIL_SERVICE_URL not configured. Email not sent.")
+        return
+    
+    try:
+        response = requests.post(f"{EMAIL_SERVICE_URL}/send-email", json={
+            "to": to_email,
+            "subject": subject,
+            "html": html_content
+        }, timeout=5)
+        
+        if response.status_code == 200:
+            print(f"[INFO] Email sent to {to_email}")
+        else:
+            print(f"[ERROR] Failed to send email: {response.text}")
+    except Exception as e:
+        print(f"[ERROR] Exception sending email: {e}")
 
 # DEBUG: Verificar configuración de correo
 print("[DEBUG] === Mail Configuration ===")
@@ -79,7 +94,7 @@ print(f"[DEBUG] MAIL_DEFAULT_SENDER = {app.config['MAIL_DEFAULT_SENDER']}")
 print("[DEBUG] ================================")
 
 db = SQLAlchemy(app)
-mail = Mail(app)
+# mail = Mail(app) # Reemplazado por microservicio
 csrf = CSRFProtect(app)  # Protección CSRF
 limiter = Limiter(
     key_func=get_remote_address,
@@ -190,12 +205,9 @@ def buy():
     db.session.commit()
 
     # Enviar correo de confirmación de compra
-    try:
-        msg = Message('Confirmacion de Compra - PONTE ONCE', recipients=[data['email']])
-        msg.body = f"Hola {data['name']},\n\nGracias por su compra de: {product.name}.\nTotal: ${data['price']}\nCelular de contacto: {data.get('phone', 'N/A')}\n\nEn unos momentos nos comunicaremos con usted este numero para coordinar el envio.\n\nAtentamente,\nEl equipo de PONTE ONCE."
-        mail.send(msg)
-    except Exception as e:
-        print(f"Error enviando confirmacion: {e}")
+    # Enviar correo de confirmación de compra
+    msg_body = f"Hola {data['name']},<br><br>Gracias por su compra de: <b>{product.name}</b>.<br>Total: <b>${data['price']}</b><br>Celular de contacto: {data.get('phone', 'N/A')}<br><br>En unos momentos nos comunicaremos con usted a este número para coordinar el envío.<br><br>Atentamente,<br>El equipo de PONTE ONCE."
+    send_email_microservice(data['email'], 'Confirmacion de Compra - PONTE ONCE', msg_body)
 
     return jsonify({"message": "Compra procesada correctamente", "status": "success"})
 
@@ -218,12 +230,9 @@ def register():
         db.session.commit()
 
         # Enviar correo de bienvenida
-        try:
-            msg = Message('Bienvenido a PONTE ONCE Store!', recipients=[email])
-            msg.body = f'Hola {username},\n\nGracias por registrarte en nuestra tienda. ¡Esperamos que encuentres el hardware de tus sueños!\n\nSaludos,\nEl equipo de PONTE ONCE.'
-            mail.send(msg)
-        except Exception as e:
-            print(f"Error enviando correo: {e}")
+        # Enviar correo de bienvenida
+        msg_body = f'Hola {username},<br><br>Gracias por registrarte en nuestra tienda. ¡Esperamos que encuentres el hardware de tus sueños!<br><br>Saludos,<br>El equipo de PONTE ONCE.'
+        send_email_microservice(email, 'Bienvenido a PONTE ONCE Store!', msg_body)
 
         flash('Registro exitoso. Por favor inicia sesión.', 'success')
         return redirect(url_for('login'))
