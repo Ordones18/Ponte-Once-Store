@@ -332,7 +332,7 @@
 
 <script>
     // Ventas Últimos 7 Días
-    const salesData = {{ stats.ventas_por_dia | tojson }};
+    var salesData = {{ stats.ventas_por_dia | tojson | safe }};
     new Chart(document.getElementById('salesChart'), {
         type: 'line',
         data: {
@@ -361,7 +361,7 @@
     });
 
     // Productos Más Vendidos
-    const topProducts = {{ stats.productos_vendidos | tojson }};
+    var topProducts = {{ stats.productos_vendidos | tojson | safe }};
     if (topProducts.length > 0) {
         new Chart(document.getElementById('topProductsChart'), {
             type: 'doughnut',

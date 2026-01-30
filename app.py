@@ -71,12 +71,17 @@ def _send_email_thread(to_email, subject, html_content):
         return
     
     try:
-        print(f"[INFO] Sending email to {to_email} via {EMAIL_SERVICE_URL}...")
-        response = requests.post(f"{EMAIL_SERVICE_URL}/send-email", json={
+        # Asegurar que la URL no tenga slash final y agregar /send-email
+        base_url = EMAIL_SERVICE_URL.rstrip('/')
+        target_url = f"{base_url}/send-email"
+        
+        print(f"[MICROSERVICE] 🚀 Sending email via: {target_url}")
+        
+        response = requests.post(target_url, json={
             "to": to_email,
             "subject": subject,
             "html": html_content
-        }, timeout=10) # 10s timeout
+        }, timeout=10)
         
         if response.status_code == 200:
             print(f"[INFO] Email sent successfully to {to_email}")
