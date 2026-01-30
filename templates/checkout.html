@@ -39,6 +39,7 @@
         <h2>Datos de Facturación</h2>
         <form id="paymentForm">
             <!-- Hidden inputs for product data -->
+            <input type="hidden" id="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" id="productId" value="{{ product.id }}">
             <input type="hidden" id="productPrice" value="{{ product.price }}">
 

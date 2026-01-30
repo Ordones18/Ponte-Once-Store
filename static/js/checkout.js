@@ -137,10 +137,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Simular delay de red
             await new Promise(r => setTimeout(r, 2000));
 
+            const csrfToken = document.getElementById('csrf_token').value;
+
             const response = await fetch('/api/buy', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
                 },
                 body: JSON.stringify(data),
             });
