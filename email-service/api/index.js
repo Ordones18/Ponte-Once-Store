@@ -3,13 +3,14 @@ import { handle } from 'hono/vercel'
 import { cors } from 'hono/cors'
 import { Resend } from 'resend'
 
-const app = new Hono().basePath('/api')
+const app = new Hono()
 
 app.use('/*', cors())
 
-app.get('/', (c) => c.text('Email Service (Resend) is Running! 🚀'))
+app.get('/api', (c) => c.text('Email Service (Resend) is Running! 🚀'))
+app.get('/api/', (c) => c.text('Email Service (Resend) is Running! 🚀'))
 
-app.post('/send-email', async (c) => {
+app.post('/api/send-email', async (c) => {
     try {
         const body = await c.req.json()
         const { to, subject, html } = body
