@@ -145,6 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(data),
             });
 
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error del servidor (${response.status}): ${errorText.substring(0, 100)}...`);
+            }
+
             const result = await response.json();
 
             if (result.status === 'success') {
@@ -159,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error:', error);
-            statusMessage.textContent = "Error de conexión.";
+            statusMessage.textContent = error.message || "Error de conexión.";
         } finally {
             payButton.disabled = false;
             payButton.textContent = "Pagar Ahora";

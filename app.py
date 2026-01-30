@@ -64,24 +64,33 @@ app.config['WTF_CSRF_TIME_LIMIT'] = 3600
 # --- CONFIGURACIÓN DE CORREO (MICROSERVICIO) ---
 EMAIL_SERVICE_URL = os.environ.get('EMAIL_SERVICE_URL')
 
-def send_email_microservice(to_email, subject, html_content):
+def _send_email_thread(to_email, subject, html_content):
+    """Función interna para enviar correo en un hilo separado"""
     if not EMAIL_SERVICE_URL:
         print("[WARNING] EMAIL_SERVICE_URL not configured. Email not sent.")
         return
     
     try:
+        print(f"[INFO] Sending email to {to_email} via {EMAIL_SERVICE_URL}...")
         response = requests.post(f"{EMAIL_SERVICE_URL}/send-email", json={
             "to": to_email,
             "subject": subject,
             "html": html_content
-        }, timeout=5)
+        }, timeout=10) # 10s timeout
         
         if response.status_code == 200:
-            print(f"[INFO] Email sent to {to_email}")
+            print(f"[INFO] Email sent successfully to {to_email}")
         else:
-            print(f"[ERROR] Failed to send email: {response.text}")
+            print(f"[ERROR] Failed to send email. Status: {response.status_code}, Body: {response.text}")
     except Exception as e:
         print(f"[ERROR] Exception sending email: {e}")
+
+def send_email_microservice(to_email, subject, html_content):
+    """Lanza el envío de correo en segundo plano"""
+    import threading
+    thread = threading.Thread(target=_send_email_thread, args=(to_email, subject, html_content))
+    thread.daemon = True # El hilo muere si la app muere
+    thread.start()
 
 # DEBUG: Email Service URL
 print(f"[DEBUG] EMAIL_SERVICE_URL = {EMAIL_SERVICE_URL}")
