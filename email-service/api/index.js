@@ -30,8 +30,8 @@ app.post('/send-email', async (c) => {
 
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
-            port: 465,
-            secure: true, // Usar SSL
+            port: 587,
+            secure: false, // Usar STARTTLS
             auth: {
                 user: process.env.MAIL_USERNAME,
                 pass: process.env.MAIL_PASSWORD.replace(/\s+/g, '')
