@@ -29,11 +29,14 @@ app.post('/send-email', async (c) => {
         }
 
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true, // Usar SSL
             auth: {
                 user: process.env.MAIL_USERNAME,
-                pass: process.env.MAIL_PASSWORD.replace(/\s+/g, '') // Eliminar espacios por seguridad
-            }
+                pass: process.env.MAIL_PASSWORD.replace(/\s+/g, '')
+            },
+            connectionTimeout: 10000 // 10 segundos timeout conexión
         })
 
         console.log('[DEBUG] Transporter created. Sending mail...');
