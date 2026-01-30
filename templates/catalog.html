@@ -15,14 +15,14 @@
 <section class="catalog-filters"
     style="max-width: 1200px; margin: 0 auto 2rem; padding: 0 5%; display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 10px;">
     <a href="{{ url_for('catalog') }}" class="filter-btn {% if not current_category %}active{% endif %}"
-        style="padding: 0.5rem 1.5rem; border-radius: 50px; text-decoration: none; border: 1px solid var(--primary-blue); background: {% if not current_category %}var(--primary-blue){% else %}transparent{% endif %}; color: {% if not current_category %}#000{% else %}white{% endif %}; transition: all 0.3s;">
+        style="padding: 0.5rem 1.5rem; border-radius: 50px; text-decoration: none; border: 1px solid var(--accent-yellow); background: {% if not current_category %}var(--accent-yellow){% else %}transparent{% endif %}; color: #000; font-weight: bold; transition: all 0.3s; white-space: nowrap;">
         Todos
     </a>
 
     {% for cat in categories %}
     <a href="{{ url_for('catalog', category=cat) }}"
         class="filter-btn {% if current_category == cat %}active{% endif %}"
-        style="padding: 0.5rem 1.5rem; border-radius: 50px; text-decoration: none; border: 1px solid var(--primary-blue); background: {% if current_category == cat %}var(--primary-blue){% else %}transparent{% endif %}; color: {% if current_category == cat %}#000{% else %}white{% endif %}; white-space: nowrap; transition: all 0.3s;">
+        style="padding: 0.5rem 1.5rem; border-radius: 50px; text-decoration: none; border: 1px solid var(--accent-yellow); background: {% if current_category == cat %}var(--accent-yellow){% else %}transparent{% endif %}; color: #000; font-weight: bold; white-space: nowrap; transition: all 0.3s;">
         {{ cat }}
     </a>
     {% endfor %}
