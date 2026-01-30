@@ -4,6 +4,28 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/catalog.css') }}">
+<style>
+    /* Fix para que la etiqueta no sea tapada por la imagen */
+    .product-image {
+        position: relative;
+        /* Asegura contexto para absoluto */
+    }
+
+    .category-tag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        /* Encima de la imagen */
+        background: var(--primary-blue);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
