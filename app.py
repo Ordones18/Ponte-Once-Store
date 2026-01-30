@@ -134,17 +134,8 @@ class Purchase(db.Model):
 
 # --- SEED DATA ---
 def seed_database():
-    if Product.query.first() is None:
-        products = [
-            Product(name="NVIDIA RTX 4090", category="GPU", price=1999.99, image_url="https://m.media-amazon.com/images/I/7120GgCjCIL._AC_SL1500_.jpg", description="La tarjeta gráfica más potente del mundo."),
-            Product(name="Intel Core i9-14900K", category="CPU", price=589.99, image_url="https://m.media-amazon.com/images/I/61p-lC6h4JL._AC_SL1000_.jpg", description="Rendimiento extremo para gaming y creación."),
-            Product(name="ASUS ROG Maximus Z790", category="Motherboard", price=699.99, image_url="https://m.media-amazon.com/images/I/81I-g4-qRlL._AC_SL1500_.jpg", description="La base perfecta para tu build de ensueño."),
-            Product(name="AMD Ryzen 9 7950X3D", category="CPU", price=649.99, image_url="https://m.media-amazon.com/images/I/51f2hk8lJPL._AC_SL1000_.jpg", description="El mejor procesador para gaming con 3D V-Cache."),
-            Product(name="AMD Radeon RX 7900 XTX", category="GPU", price=999.99, image_url="https://m.media-amazon.com/images/I/71s6VwH7iGL._AC_SL1500_.jpg", description="Potencia bruta para 4K gaming.")
-        ]
-        db.session.bulk_save_objects(products)
-        db.session.commit()
-        print("Database seeded!")
+    # Base de datos comienza vacía - agrega productos desde el panel admin
+    pass
 
 # --- ROUTES ---
 @app.route('/')
