@@ -1,57 +1,49 @@
 import { Hono } from 'hono'
 import { handle } from 'hono/vercel'
 import { cors } from 'hono/cors'
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 
 const app = new Hono().basePath('/api')
 
 app.use('/*', cors())
 
-app.get('/', (c) => c.text('Email Service is Running! 🚀'))
+app.get('/', (c) => c.text('Email Service (Resend) is Running! 🚀'))
 
 app.post('/send-email', async (c) => {
     try {
-        console.log('[DEBUG] Received email request');
         const body = await c.req.json()
         const { to, subject, html } = body
 
         if (!to || !subject || !html) {
-            console.log('[ERROR] Missing fields');
-            return c.json({ error: 'Missing required fields: to, subject, html' }, 400)
+            return c.json({ error: 'Missing required fields' }, 400)
         }
 
-        console.log(`[DEBUG] Preparing to send email to: ${to}`);
-
-        // Verificar variables (sin imprimir la contraseña)
-        if (!process.env.MAIL_USERNAME || !process.env.MAIL_PASSWORD) {
-            console.error('[FATAL] Missing MAIL_USERNAME or MAIL_PASSWORD env variables');
-            return c.json({ error: 'Server configuration error: Missing credentials' }, 500);
+        if (!process.env.RESEND_API_KEY) {
+            console.error('[FATAL] Missing RESEND_API_KEY');
+            return c.json({ error: 'Server config error' }, 500);
         }
 
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false, // Usar STARTTLS
-            auth: {
-                user: process.env.MAIL_USERNAME,
-                pass: process.env.MAIL_PASSWORD.replace(/\s+/g, '')
-            },
-            connectionTimeout: 10000 // 10 segundos timeout conexión
-        })
+        const resend = new Resend(process.env.RESEND_API_KEY);
 
-        console.log('[DEBUG] Transporter created. Sending mail...');
+        console.log(`[DEBUG] Sending via Resend to: ${to}`);
 
-        const info = await transporter.sendMail({
-            from: process.env.MAIL_USERNAME,
-            to,
-            subject,
-            html
-        })
+        const { data, error } = await resend.emails.send({
+            from: 'Ponte Once <onboarding@resend.dev>', // Domain de prueba de Resend
+            to: [to],
+            subject: subject,
+            html: html
+        });
 
-        console.log(`[SUCCESS] Email sent. MessageID: ${info.messageId}`);
-        return c.json({ success: true, messageId: info.messageId })
+        if (error) {
+            console.error('[RESEND ERROR]', error);
+            return c.json({ error: error.message }, 400);
+        }
+
+        console.log(`[SUCCESS] Email sent: ${data.id}`);
+        return c.json({ success: true, id: data.id });
+
     } catch (error) {
-        console.error('[ERROR] Email sending failed:', error)
+        console.error('[ERROR] Exception:', error)
         return c.json({ error: error.message }, 500)
     }
 })
