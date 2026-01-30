@@ -330,9 +330,17 @@
     </table>
 </div>
 
+<div class="stats-data" data-sales='{{ stats.ventas_por_dia | tojson | safe }}'
+    data-products='{{ stats.productos_vendidos | tojson | safe }}'>
+</div>
+
 <script>
+    // Leer datos desde atributos HTML para evitar errores de linter
+    var statsContainer = document.querySelector('.stats-data');
+    var salesData = JSON.parse(statsContainer.dataset.sales);
+    var topProducts = JSON.parse(statsContainer.dataset.products);
+
     // Ventas Últimos 7 Días
-    var salesData = {{ stats.ventas_por_dia | tojson | safe }};
     new Chart(document.getElementById('salesChart'), {
         type: 'line',
         data: {
@@ -361,7 +369,6 @@
     });
 
     // Productos Más Vendidos
-    var topProducts = {{ stats.productos_vendidos | tojson | safe }};
     if (topProducts.length > 0) {
         new Chart(document.getElementById('topProductsChart'), {
             type: 'doughnut',

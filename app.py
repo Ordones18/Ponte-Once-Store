@@ -274,13 +274,21 @@ def forgot_password():
         if user:
             token = s.dumps(email, salt='email-confirm')
             link = url_for('reset_password', token=token, _external=True)
-            msg = Message('Recuperacion de Contrasena', recipients=[email])
-            msg.body = f'Hola {user.username},\n\nHaz clic en el siguiente enlace para restablecer tu contraseña:\n{link}\n\nSi no fuiste tú, ignora este mensaje.'
-            try:
-                mail.send(msg)
-                flash('Te hemos enviado un enlace de recuperación a tu correo.', 'info')
-            except Exception as e:
-                flash(f'Error al enviar correo: {e}', 'error')
+            link = url_for('reset_password', token=token, _external=True)
+            
+            # Formato HTML para el correo
+            msg_html = f"""
+            <h3>Recuperación de Contraseña</h3>
+            <p>Hola <b>{user.username}</b>,</p>
+            <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
+            <p><a href="{link}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Restablecer Contraseña</a></p>
+            <p>O copia y pega este enlace: <br>{link}</p>
+            <p>Si no fuiste tú, ignora este mensaje.</p>
+            """
+            
+            # Usar el microservicio
+            send_email_microservice(email, 'Recuperación de Contraseña - PONTE ONCE', msg_html)
+            flash('Te hemos enviado un enlace de recuperación a tu correo.', 'info')
         else:
              flash('No encontramos una cuenta con ese correo.', 'error')
     return render_template('auth/forgot_password.html')
