@@ -167,8 +167,17 @@ def index():
 
 @app.route('/catalog')
 def catalog():
-    products = Product.query.all()
-    return render_template('catalog.html', products=products)
+    category_filter = request.args.get('category')
+    
+    # Obtener categorías únicas para el filtro
+    categories = [r.category for r in db.session.query(Product.category).distinct()]
+    
+    if category_filter:
+        products = Product.query.filter_by(category=category_filter).all()
+    else:
+        products = Product.query.all()
+        
+    return render_template('catalog.html', products=products, categories=categories, current_category=category_filter)
 
 @app.route('/product/<int:product_id>')
 def product_detail(product_id):
