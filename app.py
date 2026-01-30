@@ -178,8 +178,22 @@ def product_detail(product_id):
 @app.route('/profile')
 @login_required
 def profile():
+    # Obtener historial de compras
     purchases = Purchase.query.filter_by(email=current_user.email).order_by(Purchase.date.desc()).all()
-    return render_template('profile.html', purchases=purchases)
+    
+    # Lógica de Recomendaciones:
+    # 1. Obtener IDs de productos ya comprados por el usuario
+    purchased_product_ids = [p.product_id for p in purchases]
+    
+    # 2. Consultar productos que NO estén en esa lista (excluir los comprados)
+    # Si no ha comprado nada, mostrará cualquiera. Limitamos a 3 sugerencias.
+    if purchased_product_ids:
+        recommendations = Product.query.filter(Product.id.notin_(purchased_product_ids)).limit(3).all()
+    else:
+        # Si es nuevo, recomendar los 3 primeros (o los más populares si tuviéramos esa métrica)
+        recommendations = Product.query.limit(3).all()
+        
+    return render_template('profile.html', purchases=purchases, recommendations=recommendations)
 
 @app.route('/checkout/<int:product_id>')
 @login_required

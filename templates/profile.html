@@ -100,7 +100,7 @@
                 {% for purchase in purchases %}
                 <tr>
                     <td>#{{ purchase.id }}</td>
-                 
+
                     <td>
                         {% if purchase.product %}
                         {{ purchase.product.name }}
@@ -121,5 +121,31 @@
         </div>
         {% endif %}
     </div>
-</div>
-{% endblock %}
+
+    {% if recommendations %}
+    <div style="margin-top: 3rem;">
+        <h2 style="margin-bottom: 1.5rem; color: #333;">Productos que te podrían gustar</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+            {% for product in recommendations %}
+            <div
+                style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee; transition: transform 0.2s;">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}"
+                    style="width: 100%; height: 200px; object-fit: cover;">
+                <div style="padding: 1.5rem;">
+                    <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem;">{{ product.name }}</h3>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">{{ product.description[:60] }}...
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: bold; font-size: 1.2rem; color: #007bff;">${{ product.price }}</span>
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}"
+                            style="background: #007bff; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">Ver
+                            Detalles</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% endblock %}
